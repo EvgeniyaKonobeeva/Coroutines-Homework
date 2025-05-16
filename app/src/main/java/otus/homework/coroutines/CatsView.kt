@@ -6,7 +6,6 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
-import androidx.annotation.StringRes
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.squareup.picasso.Picasso
 
@@ -16,7 +15,7 @@ class CatsView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : ConstraintLayout(context, attrs, defStyleAttr), ICatsView {
 
-    var presenter: CatsPresenter? = null
+    var presenter: CatsViewModel? = null
 
     override fun onFinishInflate() {
         super.onFinishInflate()
@@ -25,23 +24,23 @@ class CatsView @JvmOverloads constructor(
         }
     }
 
-    override fun populate(catInfo: CatInfo) {
-        findViewById<TextView>(R.id.fact_textView).text = catInfo.catFact.fact
-        Picasso.get().load(catInfo.catImage.url).into(findViewById<ImageView>(R.id.image))
+    override fun populate(state: CatsScreenState) {
+        when (state) {
+            is CatsScreenState.Success<*> -> {
+                (state.data as? CatInfo)?.let { catInfo ->
+                    findViewById<TextView>(R.id.fact_textView).text = catInfo.catFact
+                    Picasso.get().load(catInfo.catImageUrl).into(findViewById<ImageView>(R.id.image))
+                }
+            }
+
+            is CatsScreenState.Error -> {
+                Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
+            }
+        }
+
     }
-
-    override fun showToast(message: String?) =
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-
-    override fun showToast(@StringRes message: Int) =
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
 }
 
 interface ICatsView {
-
-    fun populate(catInfo: CatInfo)
-
-    fun showToast(message: String?)
-
-    fun showToast(@StringRes message: Int)
+    fun populate(state: CatsScreenState)
 }
