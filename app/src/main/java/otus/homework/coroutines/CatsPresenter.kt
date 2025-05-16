@@ -3,9 +3,10 @@ package otus.homework.coroutines
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.net.SocketTimeoutException
 
 class CatsPresenter(
@@ -21,10 +22,11 @@ class CatsPresenter(
     fun onInitComplete() {
         presenterScope.launch {
             try {
-                val fact = withContext(Dispatchers.IO) {
-                    catsService.getCatFact()
+                coroutineScope {
+                    val catFact = async(Dispatchers.IO) { catsService.getCatFact() }
+                    val catImage = async(Dispatchers.IO) { catsService.getCatImage() }
+                    _catsView?.populate(catInfo = CatInfo(catFact.await(), catImage.await().first()))
                 }
-                _catsView?.populate(fact)
             } catch (e: Throwable) {
                 handleError(e)
             }
