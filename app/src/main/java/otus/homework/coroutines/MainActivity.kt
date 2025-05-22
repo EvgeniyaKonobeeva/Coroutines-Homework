@@ -1,11 +1,16 @@
 package otus.homework.coroutines
 
 import android.os.Bundle
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
 
-    lateinit var catsViewModel: CatsViewModel
+    private val catsViewModel: CatsViewModel by viewModels<CatsViewModel> {
+        CatsViewModelFactory(
+            diContainer.service
+        )
+    }
 
     private val diContainer = DiContainer()
 
@@ -15,7 +20,6 @@ class MainActivity : AppCompatActivity() {
         val view = layoutInflater.inflate(R.layout.activity_main, null) as CatsView
         setContentView(view)
 
-        catsViewModel = CatsViewModel(diContainer.service)
         view.presenter = catsViewModel
         catsViewModel.attachView(view)
         catsViewModel.onInitComplete()

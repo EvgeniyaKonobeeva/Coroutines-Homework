@@ -1,6 +1,7 @@
 package otus.homework.coroutines
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
@@ -49,4 +50,10 @@ class CatsViewModel(
         _catsView = null
         viewModelScope.cancel()
     }
+}
+
+class CatsViewModelFactory(private val catsService: CatsService) :
+    ViewModelProvider.NewInstanceFactory() {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T =
+        CatsViewModel(catsService) as T
 }
